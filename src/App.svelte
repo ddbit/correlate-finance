@@ -117,12 +117,12 @@ const correlationMatrix=function(aDataframe){
 </script>
 
 <main>
-  <div>
-    
+  <div>  
       <img src={logo} class="logo svelte" alt="Svelte Logo" />
-
+      <h3>Efficient Frontier Capital</h3>
   </div>
-  <h1>Correlated Finance</h1>
+  <h1>Correlation of Financial Assets</h1>
+  
 
   
   {#each tickers as t,index}
@@ -133,7 +133,7 @@ const correlationMatrix=function(aDataframe){
   {/each}
   <br/>
   <Modal show={$modal}>
-    <button on:click={showModal}>Want more? ℹ️</button>
+    <button on:click={showModal}>Want more assets? ℹ️</button>
   </Modal>
 
 
