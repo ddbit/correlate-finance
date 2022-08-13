@@ -3,6 +3,14 @@
 </svelte:head>
 
 <script>
+
+  import { writable } from 'svelte/store';
+	import Modal from 'svelte-simple-modal';
+  const modal = writable(null);
+  const showModal = () => modal.set(Popup);
+
+  import Spinner from './lib/Spinner.svelte';
+  import Popup from './lib/Popup.svelte';
   import logo from './assets/logo.png';
   import calculateCorrelation from "calculate-correlation";
   import {createPriceDataframe, createReturnsDataframe} from './lib/portfolio';
@@ -16,10 +24,18 @@
   )(new Date())
 
 
-
+  let assets=[
+    {ticker:"SPY", name:'SP 500', pretty: 'SP500'},
+    {ticker:"NDAQ",name:'NASDAQ', pretty: 'NASDAQ'},
+    {ticker:"BNO",name:'Brent Oil Fund', pretty: 'OIL'},
+    {ticker:"C:XAUUSD",name:'Gold', pretty: 'GOLD'},
+    {ticker:"X:BTCUSD",name:'Bitcoin', pretty: 'BTC'},
+    {ticker:"TIP",name:'US Bonds ETF', pretty: 'TIPS'},
+    {ticker:"FXI",name:'China Corp ETF', pretty: 'CHINA CORP'}
+  ];
   
   let tickers=["SPY","NDAQ","BNO","C:XAUUSD","X:BTCUSD","TIP","FXI"];
-
+  let selectedTickers = tickers;
   let names = ["SP 500",
 			"Nasdaq",
 			"Brent Oil Fund",
@@ -27,18 +43,22 @@
 			"Bitcoin",
 			"US Bonds ETF",
 			"China Corp. ETF"];
-  let prettyShortNames=['SP500','NDAQ','OIL','AU','BTC','TIPS','CN-CORP'];
-  
+  let prettyShortNames=['SP500','NDAQ','OIL','GOLD','BTC','TIPS','CN-CORP'];
+
 
 
 
   
   let heatmap=function(matrix){
+    var shortNames;
+    let selectedAssets= assets.filter((a)=>selectedTickers.includes(a.ticker));
+    shortNames = selectedAssets.map((a)=>a.pretty);
+    console.log(shortNames);
     var data = [
       {
         z: matrix.data,
-        x: prettyShortNames,
-        y: prettyShortNames,
+        x: shortNames,
+        y: shortNames,
         type: 'heatmap',
         hoverongaps: false
       }
@@ -78,13 +98,21 @@ const correlationMatrix=function(aDataframe){
 
   let prices; 
   let returns;
+  var loading = true;
+
+  const myAlert=function(){
+    
+  }
   
-  (async ()=>{
-    prices = await createPriceDataframe(tickers, period);
+  async function updateView(){
+    loading = true;
+    console.log(selectedTickers);
+    prices = await createPriceDataframe(selectedTickers, period);
     returns = await createReturnsDataframe(prices);
     heatmap(correlationMatrix(returns));
-  })();
-  
+    loading=false;
+  }
+  updateView();
 
 </script>
 
@@ -96,12 +124,26 @@ const correlationMatrix=function(aDataframe){
   </div>
   <h1>Correlated Finance</h1>
 
+  
+  {#each tickers as t,index}
+    <label>
+      <input type=checkbox bind:group={selectedTickers} value={t}>
+      {names[index]}
+    </label> |
+  {/each}
+  <br/>
+  <Modal show={$modal}>
+    <button on:click={showModal}>Want more? ℹ️</button>
+  </Modal>
 
 
+  <button on:click={updateView}>Update heatmap 🔥</button>
+  <br/>
+  {#if loading}<Spinner/>
+  {/if}
 
-
-
-<div id="heatmap"></div>
+  <div id="heatmap"></div>
+  
 
 
 <div style="text-align: center;">date range {[from.toISOString().substring(0,10),

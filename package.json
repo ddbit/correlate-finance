@@ -16,6 +16,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "calculate-correlation": "^1.2.3",
-    "dataframe-js": "^1.4.4"
+    "dataframe-js": "^1.4.4",
+    "svelte-simple-modal": "^1.4.1"
   }
 }
