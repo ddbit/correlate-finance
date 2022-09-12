@@ -30,20 +30,22 @@
     {ticker:"BNO",name:'Brent Oil Fund', pretty: 'OIL'},
     {ticker:"C:XAUUSD",name:'Gold', pretty: 'GOLD'},
     {ticker:"X:BTCUSD",name:'Bitcoin', pretty: 'BTC'},
+    {ticker:"X:ETHUSD",name:'Ether', pretty: 'ETH'},
     {ticker:"TIP",name:'US Bonds ETF', pretty: 'TIPS'},
     {ticker:"FXI",name:'China Corp ETF', pretty: 'CHINA CORP'}
   ];
   
-  let tickers=["SPY","NDAQ","BNO","C:XAUUSD","X:BTCUSD","TIP","FXI"];
+  let tickers=["SPY","NDAQ","BNO","C:XAUUSD","X:BTCUSD","X:ETHUSD","TIP","FXI"];
   let selectedTickers = tickers;
   let names = ["SP 500",
 			"Nasdaq",
 			"Brent Oil Fund",
 			"Gold", 
 			"Bitcoin",
+      "Ether",
 			"US Bonds ETF",
 			"China Corp. ETF"];
-  let prettyShortNames=['SP500','NDAQ','OIL','GOLD','BTC','TIPS','CN-CORP'];
+  let prettyShortNames=['SP500','NDAQ','OIL','GOLD','BTC',"ETH",'TIPS','CN-CORP'];
 
 
 
