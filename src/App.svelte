@@ -14,6 +14,7 @@
   import logo from './assets/logo.png';
   import calculateCorrelation from "calculate-correlation";
   import {createPriceDataframe, createReturnsDataframe} from './lib/portfolio';
+  import {getCorrelationMatrix} from './lib/sheet';
 
   const period = 90;
   let to = new Date();
@@ -28,13 +29,13 @@
     {ticker:"SPY", name:'SP 500', pretty: 'SP500'},
     {ticker:"NDAQ",name:'NASDAQ', pretty: 'NASDAQ'},
     {ticker:"BNO",name:'Brent Oil Fund', pretty: 'OIL'},
-    {ticker:"C:XAUUSD",name:'Gold', pretty: 'GOLD'},
-    {ticker:"X:BTCUSD",name:'Bitcoin', pretty: 'BTC'},
+    {ticker:"IAUM",name:'Gold ETF', pretty: 'GOLD'},
+    {ticker:"BTCUSD",name:'Bitcoin', pretty: 'BTC'},
     {ticker:"TIP",name:'US Bonds ETF', pretty: 'TIPS'},
-    {ticker:"FXI",name:'China Corp ETF', pretty: 'CHINA CORP'}
+    {ticker:"MCHI",name:'China Corp ETF', pretty: 'CHINA CORP'}
   ];
   
-  let tickers=["SPY","NDAQ","BNO","C:XAUUSD","X:BTCUSD","TIP","FXI"];
+  let tickers=["SPY","NDAQ","BNO","IAUM","BTCUSD","TIP","FXI"];
   let selectedTickers = tickers;
   let names = ["SP 500",
 			"Nasdaq",
@@ -53,7 +54,7 @@
     var shortNames;
     let selectedAssets= assets.filter((a)=>selectedTickers.includes(a.ticker));
     shortNames = selectedAssets.map((a)=>a.pretty);
-    console.log(shortNames);
+    //console.log(shortNames);
     var data = [
       {
         z: matrix.data,
@@ -69,47 +70,18 @@
 
 
 
-
-const correlationMatrix=function(aDataframe){    
-    //console.log(aDataframe);
-    var df;
-    //if time is a column must be dropped
-    try {
-        df = aDataframe.drop("time");
-    } catch (error) {
-        console.log("no time column found");
-        df = aDataframe;
-    }
-   
-
-    var d = df.toDict();
-    var keys = Object.keys(d);
-    var matrix=[];
-    
-    for(var i = 0; i<keys.length; i++){
-        var row = [];
-        matrix.push(row);
-        for(var j = 0; j<keys.length; j++){
-            row.push(calculateCorrelation(d[keys[i]],d[keys[j]]));
-        }
-    }
-    return {'data':matrix, 'meta':keys};
-}
-
-  let prices; 
   let returns;
   var loading = true;
 
-  const myAlert=function(){
-    
-  }
+
   
   async function updateView(){
     loading = true;
     console.log(selectedTickers);
-    prices = await createPriceDataframe(selectedTickers, period);
-    returns = await createReturnsDataframe(prices);
-    heatmap(correlationMatrix(returns));
+    let corrMatrix = await getCorrelationMatrix();
+    console.log("returns");
+    console.log(returns);
+    heatmap(corrMatrix);
     loading=false;
   }
   updateView();
