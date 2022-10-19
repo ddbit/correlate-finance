@@ -26,6 +26,8 @@ const convert=function(data){
 
 export let getCorrelationMatrix=async function(){
     let data = await get();
+    console.log("getCorrelationMatrix");
+    console.log(data);
     return convert(data);
 }
 

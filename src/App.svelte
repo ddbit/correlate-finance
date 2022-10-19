@@ -54,7 +54,8 @@
     var shortNames;
     let selectedAssets= assets.filter((a)=>selectedTickers.includes(a.ticker));
     shortNames = selectedAssets.map((a)=>a.pretty);
-    //console.log(shortNames);
+    console.log("heatmap");
+    console.log(matrix.data);
     var data = [
       {
         z: matrix.data,
@@ -65,7 +66,14 @@
       }
     ];
 
-    Plotly.newPlot('heatmap', data);
+    var data2=[{
+      z:[[0.3,0.4],[0.1,-0.3]],
+      x: ["AAA","BBB"],
+      y: ["AAA","BBB"],
+      type: 'heatmap'
+    }];
+
+    Plotly.newPlot('heatmap', data2);
   }
 
 
