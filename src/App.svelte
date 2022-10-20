@@ -58,7 +58,7 @@
     console.log(matrix.data);
     var data = [
       {
-        z: matrix.data,
+        z: matrix,
         x: shortNames,
         y: shortNames,
         type: 'heatmap',
@@ -73,22 +73,19 @@
       type: 'heatmap'
     }];
 
-    Plotly.newPlot('heatmap', data2);
+    Plotly.newPlot('heatmap', data);
   }
 
 
 
   let returns;
   var loading = true;
-
-
   
   async function updateView(){
     loading = true;
-    console.log(selectedTickers);
-    let corrMatrix = await getCorrelationMatrix();
-    console.log("returns");
-    console.log(returns);
+    console.log('selected tickers',selectedTickers);
+    let corrMatrix = await getCorrelationMatrix(selectedTickers);
+    console.log('corr',corrMatrix);
     heatmap(corrMatrix);
     loading=false;
   }

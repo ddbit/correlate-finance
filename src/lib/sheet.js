@@ -1,36 +1,55 @@
 import axios from 'axios';
+import calculateCorrelation from "calculate-correlation";
+const correlation = calculateCorrelation;
 
-/*
-const data = [
-    ["BNO","0.027","0.012","-0.019","0.010","-0.033","0.003","-0.013","0.039","-0.005","0.035","0.031","-0.004","-0.022","0.001","-0.006","-0.024","0.013","0.037","0.025","-0.011","-0.034","0.004","-0.007","-0.030","-0.016","0.016","0.004","-0.039","0.046","0.034","0.033","-0.010","0.005","0.054","-0.009","-0.043","-0.017","0.006","-0.009","0.037","-0.007","-0.002","0.011","0.006","-0.004","0.048","0.031","-0.024","-0.036","0.007","0.023","-0.038","-0.032","-0.021","-0.014","-0.029","0.021","0.023","0.013","-0.023","0.031","0.001"],
-    ["BTCUSD","0.003","0.020","0.011","0.004","-0.075","-0.038","0.003","0.005","0.012","0.007","0.009","-0.029","0.014","0.028","-0.033","0.000","-0.019","-0.002","0.010","0.022","0.007","0.113","-0.015","-0.005","0.007","-0.010","0.068","0.008","0.025","-0.014","-0.005","0.011","0.005","-0.025","-0.002","-0.096","-0.014","0.111","-0.003","0.027","-0.003","-0.017","0.037","0.022","-0.050","0.008","0.019","0.008","-0.016","-0.010","0.007","0.007","-0.035","0.009","0.010","0.022","0.006","0.005","-0.006","-0.012","0.010","0.007"]];
-
-    
-*/
 
 export let get=async function(){
-    let response = await axios.get('https://eo6ay38smfaaigz.m.pipedream.net/');
+    let response = 
+    await axios.get('https://eo6ay38smfaaigz.m.pipedream.net/');
     return response.data;
 }
 
-const convert=function(data){
-    var obj = [];
-    for (let i = 0;i<data.length;i++){
-        let row = data[i];    
-        //remove first element from any row and parse numbers from text
-        obj.push (row.map(x=>parseFloat(x)));
-    
+
+function transpose(matrix) {
+    return matrix[0].map((col, i) => matrix.map(row => row[i]));
+}
+  
+
+
+const data =
+[["date","BNO","BTCUSD","ETHUSD","IAUM","TIP","SPY","MCHI","NDAQ"],
+["2022-07-25","0.010","0.004","-0.002","0.001","0.000","0.012","0.004","-0.006"],
+["2022-07-26","-0.033","-0.075","-0.118","-0.010","-0.006","-0.025","-0.010","-0.006"]
+];
+let transform=function(data){
+    let names = data[0].splice(1);
+    console.log('names',names);
+    //remove first row
+    data = data.splice(1);
+    console.log('data',data);
+    let dataT=transpose(data);
+    dataT=dataT.splice(1);
+    console.log('dataT',dataT);
+    let obj={};
+    for (let i=0; i<names.length;i++){
+        obj[names[i]] = dataT[i];
     }
     return obj;
+
 }
 
-export let getCorrelationMatrix=async function(){
-    let data = await get();
-    console.log("getCorrelationMatrix");
-    console.log(data);
-    return convert(data);
+let corr = function(data,ticker1, ticker2){
+    return correlation(data[ticker1],data[ticker2]);
 }
 
-//getCorrelationMatrix().then(d=>console.log(convert(d)));
+let m=[
+    [1,1,1],
+    [2,2,2],
+    [3,3,3]
+];
+console.log(transpose(m));
 
- 
+let obj = transform(data);
+console.log('transform',obj);
+
+console.log(corr(obj,'BNO','BTCUSD'));
