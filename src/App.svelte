@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script>
-
+  import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
 	import Modal from 'svelte-simple-modal';
   const modal = writable(null);
@@ -12,9 +12,7 @@
   import Spinner from './lib/Spinner.svelte';
   import Popup from './lib/Popup.svelte';
   import logo from './assets/logo.png';
-  import calculateCorrelation from "calculate-correlation";
-  import {createPriceDataframe, createReturnsDataframe} from './lib/portfolio';
-  import {getCorrelationMatrix} from './lib/sheet';
+  import {fetchData, corMat} from './lib/sheet';
 
   const period = 90;
   let to = new Date();
@@ -35,19 +33,17 @@
     {ticker:"MCHI",name:'China Corp ETF', pretty: 'CHINA CORP'}
   ];
   
-  let tickers=["SPY","NDAQ","BNO","IAUM","BTCUSD","TIP","FXI"];
+  let tickers=assets.map(a => a.ticker);
   let selectedTickers = tickers;
-  let names = ["SP 500",
-			"Nasdaq",
-			"Brent Oil Fund",
-			"Gold", 
-			"Bitcoin",
-			"US Bonds ETF",
-			"China Corp. ETF"];
-  let prettyShortNames=['SP500','NDAQ','OIL','GOLD','BTC','TIPS','CN-CORP'];
-
-
-
+  let names = assets.map(a => a.name);;
+  let prettyShortNames=assets.map(a => a.pretty);
+  var data;
+  fetchData().then(d => {
+    data = d;
+    console.log('data',data);
+    updateView();
+  });
+  
 
   
   let heatmap=function(matrix){
@@ -84,12 +80,11 @@
   async function updateView(){
     loading = true;
     console.log('selected tickers',selectedTickers);
-    let corrMatrix = await getCorrelationMatrix(selectedTickers);
+    let corrMatrix = await corMat(data,selectedTickers);
     console.log('corr',corrMatrix);
     heatmap(corrMatrix);
     loading=false;
   }
-  updateView();
 
 </script>
 
