@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script>
-
+  import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
 	import Modal from 'svelte-simple-modal';
   const modal = writable(null);
@@ -12,8 +12,7 @@
   import Spinner from './lib/Spinner.svelte';
   import Popup from './lib/Popup.svelte';
   import logo from './assets/logo.png';
-  import calculateCorrelation from "calculate-correlation";
-  import {createPriceDataframe, createReturnsDataframe} from './lib/portfolio';
+  import {fetchData, corMat} from './lib/sheet';
 
   const period = 90;
   let to = new Date();
@@ -28,26 +27,23 @@
     {ticker:"SPY", name:'SP 500', pretty: 'SP500'},
     {ticker:"NDAQ",name:'NASDAQ', pretty: 'NASDAQ'},
     {ticker:"BNO",name:'Brent Oil Fund', pretty: 'OIL'},
-    {ticker:"C:XAUUSD",name:'Gold', pretty: 'GOLD'},
-    {ticker:"X:BTCUSD",name:'Bitcoin', pretty: 'BTC'},
-    {ticker:"X:ETHUSD",name:'Ether', pretty: 'ETH'},
+    {ticker:"IAUM",name:'Gold ETF', pretty: 'GOLD'},
+    {ticker:"BTCUSD",name:'Bitcoin', pretty: 'BTC'},
     {ticker:"TIP",name:'US Bonds ETF', pretty: 'TIPS'},
-    {ticker:"FXI",name:'China Corp ETF', pretty: 'CHINA CORP'}
+    {ticker:"MCHI",name:'China Corp ETF', pretty: 'CHINA CORP'}
   ];
   
-  let tickers=["SPY","NDAQ","BNO","C:XAUUSD","X:BTCUSD","X:ETHUSD","TIP","FXI"];
+  let tickers=assets.map(a => a.ticker);
   let selectedTickers = tickers;
-  let names = ["SP 500",
-			"Nasdaq",
-			"Brent Oil Fund",
-			"Gold", 
-			"Bitcoin",
-      "Ether",
-			"US Bonds ETF",
-			"China Corp. ETF"];
-  let prettyShortNames=['SP500','NDAQ','OIL','GOLD','BTC',"ETH",'TIPS','CN-CORP'];
-
-
+  let names = assets.map(a => a.name);;
+  let prettyShortNames=assets.map(a => a.pretty);
+  var data;
+  fetchData().then(d => {
+    data = d;
+    console.log('data',data);
+    updateView();
+  });
+  
 
 
   
@@ -55,10 +51,11 @@
     var shortNames;
     let selectedAssets= assets.filter((a)=>selectedTickers.includes(a.ticker));
     shortNames = selectedAssets.map((a)=>a.pretty);
-    console.log(shortNames);
+    console.log("heatmap");
+    console.log(matrix.data);
     var data = [
       {
-        z: matrix.data,
+        z: matrix,
         x: shortNames,
         y: shortNames,
         type: 'heatmap',
@@ -66,55 +63,29 @@
       }
     ];
 
+    var data2=[{
+      z:[[0.3,0.4],[0.1,-0.3]],
+      x: ["AAA","BBB"],
+      y: ["AAA","BBB"],
+      type: 'heatmap'
+    }];
+
     Plotly.newPlot('heatmap', data);
   }
 
 
 
-
-const correlationMatrix=function(aDataframe){    
-    //console.log(aDataframe);
-    var df;
-    //if time is a column must be dropped
-    try {
-        df = aDataframe.drop("time");
-    } catch (error) {
-        console.log("no time column found");
-        df = aDataframe;
-    }
-   
-
-    var d = df.toDict();
-    var keys = Object.keys(d);
-    var matrix=[];
-    
-    for(var i = 0; i<keys.length; i++){
-        var row = [];
-        matrix.push(row);
-        for(var j = 0; j<keys.length; j++){
-            row.push(calculateCorrelation(d[keys[i]],d[keys[j]]));
-        }
-    }
-    return {'data':matrix, 'meta':keys};
-}
-
-  let prices; 
   let returns;
   var loading = true;
-
-  const myAlert=function(){
-    
-  }
   
   async function updateView(){
     loading = true;
-    console.log(selectedTickers);
-    prices = await createPriceDataframe(selectedTickers, period);
-    returns = await createReturnsDataframe(prices);
-    heatmap(correlationMatrix(returns));
+    console.log('selected tickers',selectedTickers);
+    let corrMatrix = await corMat(data,selectedTickers);
+    console.log('corr',corrMatrix);
+    heatmap(corrMatrix);
     loading=false;
   }
-  updateView();
 
 </script>
 
