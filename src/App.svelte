@@ -3,7 +3,6 @@
 </svelte:head>
 
 <script>
-  import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
 	import Modal from 'svelte-simple-modal';
   const modal = writable(null);
@@ -73,6 +72,17 @@
     Plotly.newPlot('heatmap', data);
   }
 
+  const chart=function(){
+    var trace = {
+      x: [1, 2, 3, 4],
+      y: [16, 5, 11, 9],
+      type: 'scatter'
+    };
+
+    var data = [trace];
+
+    Plotly.newPlot('chart', data,{showLegend:false},{staticPlot: true});
+  }
 
 
   let returns;
@@ -84,6 +94,7 @@
     let corrMatrix = await corMat(data,selectedTickers);
     console.log('corr',corrMatrix);
     heatmap(corrMatrix);
+    chart();
     loading=false;
   }
 
@@ -124,6 +135,10 @@ to.toISOString().substring(0,10)]}
 </div>
 
 <br>
+
+<div id="chart"></div>
+
+
 <div >
 <p style="text-align: center;">
    by Davide Carboni 2022. <a href="https://digitaldavide.me">digitaldavide.me</a> 
