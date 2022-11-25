@@ -62,26 +62,42 @@
       }
     ];
 
-    var data2=[{
-      z:[[0.3,0.4],[0.1,-0.3]],
-      x: ["AAA","BBB"],
-      y: ["AAA","BBB"],
-      type: 'heatmap'
-    }];
 
     Plotly.newPlot('heatmap', data);
   }
 
-  const chart=function(){
+  const chart=function(ticker, Y){
+
+    let aum = [1];
+    for(let k=0;k<Y.length;k++){
+      aum.push(aum[k]*(Y[k]+1));
+    }
+
     var trace = {
-      x: [1, 2, 3, 4],
-      y: [16, 5, 11, 9],
+      //x: [1, 60],
+      y: aum,
       type: 'scatter'
     };
 
     var data = [trace];
 
-    Plotly.newPlot('chart', data,{showLegend:false},{staticPlot: true});
+    Plotly.newPlot(
+      'chart:'+ticker, 
+      data,
+      {
+        title: {
+          text: ticker,font: {
+          family: 'Courier New, monospace',
+          size: 24
+          }
+        },
+        xaxis: {showticklabels: false}
+      },
+  
+      {showLegend:false},
+      {staticPlot: true},
+      {showticklabels: false}
+      );
   }
 
 
@@ -94,7 +110,11 @@
     let corrMatrix = await corMat(data,selectedTickers);
     console.log('corr',corrMatrix);
     heatmap(corrMatrix);
-    chart();
+
+    tickers.forEach(t => {
+      chart(t,data[t]);
+    });
+    
     loading=false;
   }
 
@@ -127,8 +147,12 @@
   {/if}
 
   <div id="heatmap"></div>
+  {#each tickers as t,index}
+    <div id={"chart:"+t}></div>
+    <hr/>
+  {/each}
   
-
+  
 
 <div style="text-align: center;">date range {[from.toISOString().substring(0,10),
 to.toISOString().substring(0,10)]}
@@ -136,7 +160,7 @@ to.toISOString().substring(0,10)]}
 
 <br>
 
-<div id="chart"></div>
+
 
 
 <div >
