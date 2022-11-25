@@ -3,7 +3,6 @@
 </svelte:head>
 
 <script>
-  import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
 	import Modal from 'svelte-simple-modal';
   const modal = writable(null);
@@ -63,16 +62,43 @@
       }
     ];
 
-    var data2=[{
-      z:[[0.3,0.4],[0.1,-0.3]],
-      x: ["AAA","BBB"],
-      y: ["AAA","BBB"],
-      type: 'heatmap'
-    }];
 
     Plotly.newPlot('heatmap', data);
   }
 
+  const chart=function(ticker, Y){
+
+    let aum = [1];
+    for(let k=0;k<Y.length;k++){
+      aum.push(aum[k]*(Y[k]+1));
+    }
+
+    var trace = {
+      //x: [1, 60],
+      y: aum,
+      type: 'scatter'
+    };
+
+    var data = [trace];
+
+    Plotly.newPlot(
+      'chart:'+ticker, 
+      data,
+      {
+        title: {
+          text: ticker,font: {
+          family: 'Courier New, monospace',
+          size: 24
+          }
+        },
+        xaxis: {showticklabels: false}
+      },
+  
+      {showLegend:false},
+      {staticPlot: true},
+      {showticklabels: false}
+      );
+  }
 
 
   let returns;
@@ -84,6 +110,11 @@
     let corrMatrix = await corMat(data,selectedTickers);
     console.log('corr',corrMatrix);
     heatmap(corrMatrix);
+
+    selectedTickers.forEach(t => {
+      chart(t,data[t]);
+    });
+    
     loading=false;
   }
 
@@ -116,14 +147,22 @@
   {/if}
 
   <div id="heatmap"></div>
+  {#each selectedTickers as t}
+    <div id={"chart:"+t}></div>
+    <hr/>
+  {/each}
   
-
+  
 
 <div style="text-align: center;">date range {[from.toISOString().substring(0,10),
 to.toISOString().substring(0,10)]}
 </div>
 
 <br>
+
+
+
+
 <div >
 <p style="text-align: center;">
    by Davide Carboni 2022. <a href="https://digitaldavide.me">digitaldavide.me</a> 
