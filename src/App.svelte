@@ -111,7 +111,7 @@
     console.log('corr',corrMatrix);
     heatmap(corrMatrix);
 
-    tickers.forEach(t => {
+    selectedTickers.forEach(t => {
       chart(t,data[t]);
     });
     
@@ -147,7 +147,7 @@
   {/if}
 
   <div id="heatmap"></div>
-  {#each tickers as t,index}
+  {#each selectedTickers as t}
     <div id={"chart:"+t}></div>
     <hr/>
   {/each}
